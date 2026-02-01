@@ -11,49 +11,31 @@
     >
       <nav class="z-50">
         <ul class="flex w-full flex-row gap-10">
-          <li>
-            <a class="text-lg font-bold uppercase hover:underline" href="/#home"
-              >Home</a
-            >
-          </li>
-          <li>
+          <li v-for="link in navigationLinks" :key="link.href">
             <a
               class="text-lg font-bold uppercase hover:underline"
-              href="/programma"
-              >Programma</a
+              :href="link.href"
             >
-          </li>
-          <li>
-            <a
-              class="text-lg font-bold uppercase hover:underline"
-              href="/#practical"
-              >Praktisch</a
-            >
-          </li>
-          <li>
-            <a class="text-lg font-bold uppercase hover:underline" href="/#info"
-              >Info</a
-            >
-          </li>
-          <li>
-            <a
-              class="text-lg font-bold uppercase hover:underline"
-              href="/#about-us"
-              >Ons verhaal</a
-            >
-          </li>
-          <li>
-            <a
-              class="text-lg font-bold uppercase hover:underline"
-              href="/#contact"
-              >Contact</a
-            >
+              {{ link.label }}
+            </a>
           </li>
         </ul>
       </nav>
     </header>
   </div>
 </template>
+
+<script>
+import { navigationLinks } from "@/constants/navigation";
+
+export default {
+  data() {
+    return {
+      navigationLinks,
+    };
+  },
+};
+</script>
 
 <style scoped>
 .back-to-top {

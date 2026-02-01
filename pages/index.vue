@@ -3,14 +3,12 @@
     <PageHeader />
     <HamburgerMenu />
     <MainHero />
-    <!-- Lazy load components below the fold -->
-    <LazyMainPractical />
-    <LazyMainSectionDivider :border="true" />
-    <LazyMainInfo />
-    <LazyMainSectionDivider :border="true" />
-    <LazyMainAboutUs />
-    <LazyMainSectionDivider :border="false" />
-    <LazyPageFooter />
+    <MainPractical />
+    <MainSectionDivider :border="true" />
+    <MainInfo />
+    <MainSectionDivider :border="true" />
+    <MainAboutUs />
+    <PageFooter />
   </div>
 </template>
 

@@ -5,7 +5,7 @@
   >
     <div class="sm:w-full md:w-full lg:w-2/3 xl:w-2/3">
       <h2 class="mb-2 text-6xl font-bold text-white">Info</h2>
-      <p class="text-lg leading-relaxed">
+      <p class="leading-relaxed">
         Beste Pekker, dag muziekliefhebber, Jawel, we zijn er weer klaar voor!
         Met trots presenteren wij u onze
         <span class="font-bold">{{ edition }}ste 'Izegem klinkt'</span>, ook dit

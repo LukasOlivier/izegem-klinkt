@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
   <section
-    id="about-us"
+    id="ons-verhaal"
     class="m-auto flex justify-between sm:w-full sm:p-10 md:w-full lg:w-7/12 lg:p-0 xl:w-7/12"
   >
     <div class="sm:w-full md:w-full lg:w-1/2 xl:w-1/2">

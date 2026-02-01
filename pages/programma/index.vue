@@ -7,11 +7,11 @@
       <a
         class="underline"
         target="_blank"
-        :href="config.public.lineupPdfUrl"
-        @click.prevent="!config.public.lineupPdfUrl && showNotAvailableAlert()"
+        :href="config.public.lineupPdfUrl || '#'"
+        @click="onPdfClick"
       >
         <h2 class="mb-10 text-2xl font-bold text-white">
-          Download hier het programmaboekje
+          Bekijk hier het programmaboekje
         </h2>
       </a>
 
@@ -177,6 +177,13 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
+
+const onPdfClick = (event) => {
+  if (!config.public.lineupPdfUrl) {
+    event.preventDefault();
+    showNotAvailableAlert();
+  }
+};
 
 useHead({
   title: "Programma",

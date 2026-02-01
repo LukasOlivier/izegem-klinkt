@@ -26,10 +26,8 @@
         <a
           class="underline"
           target="_blank"
-          :href="config.public.lineupPdfUrl"
-          @click.prevent="
-            !config.public.lineupPdfUrl && showNotAvailableAlert()
-          "
+          :href="config.public.lineupPdfUrl || '#'"
+          @click="onPdfClick"
         >
           binnenin dit boekje</a
         >
@@ -68,4 +66,11 @@
 const config = useRuntimeConfig();
 const { showNotAvailableAlert } = useNotAvailableAlert();
 const edition = new Date().getFullYear() - 1991;
+
+const onPdfClick = (event) => {
+  if (!config.public.lineupPdfUrl) {
+    event.preventDefault();
+    showNotAvailableAlert();
+  }
+};
 </script>

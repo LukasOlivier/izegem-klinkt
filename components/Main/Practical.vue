@@ -1,6 +1,6 @@
 <template>
   <section
-    id="practical"
+    id="praktisch"
     class="relative z-10 m-auto flex w-7/12 flex-col items-center justify-center"
   >
     <h2 class="mb-20 mt-10 text-center text-6xl font-bold text-white">

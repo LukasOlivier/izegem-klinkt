@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/html-self-closing -->
 <template>
-  <div @click="togglePlayPause">
+  <div @click="togglePlayPause" id="home">
     <video
       ref="videoPlayer"
       class="absolute left-0 top-0 z-0 h-full w-full object-cover"

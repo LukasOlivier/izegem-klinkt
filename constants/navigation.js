@@ -1,7 +1,7 @@
 export const navigationLinks = [
   { label: "Home", href: "/#home" },
   { label: "Programma", href: "/programma" },
-  { label: "Praktisch", href: "/#practical" },
+  { label: "Praktisch", href: "/#praktisch" },
   { label: "Info", href: "/#info" },
   { label: "Ons verhaal", href: "/#ons-verhaal" },
   { label: "Contact", href: "/#contact" },

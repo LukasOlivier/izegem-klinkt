@@ -13,13 +13,13 @@
         <span class="font-bold"> gratis en voor niets!</span>
         <br />
         <br />
-        We openen met jong muzikaal talent van eigen bodem : 'Underground' .
+        We openen zoals altijd met jong muzikaal talent van eigen bodem.
         <br />
-        Jonge gasten uit het verenigingsleven en Artiz nemen ons mee op hun
-        allereerste optreden. Een warme oproep om deze artiesten massaal aan te
-        moedigen. Afspraak om 19u op het Bierkasteelterras, ter hoogte van het
-        Pekkersbeeldje op de Grote Markt. U kan er genieten van een frisse
-        Filou, Rubus, Framboise, Rouge of Rouge 0,0%.
+        Jonge gasten uit Izegem nemen ons mee op hun allereerste optreden. Een
+        warme oproep om deze artiesten massaal aan te moedigen. Afspraak om 19u
+        op het Bierkasteelterras, ter hoogte van het Pekkersbeeldje op de Grote
+        Markt. U kan er genieten van een frisse Filou, Rubus, Framboise, Rouge
+        of Rouge 0,0%.
         <br /><br />
         Waarheen de muzikale avond u verder brengt, bepaalt u uiteraard volledig
         zelf. Het plannetje

@@ -1,5 +1,5 @@
 <template>
-  <div id="home" class="sm:hidden lg:block">
+  <div class="sm:hidden lg:block">
     <a
       href="/#home"
       aria-label="Back to home"

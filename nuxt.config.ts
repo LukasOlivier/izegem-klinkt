@@ -11,7 +11,6 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
-    "nuxt-cloudflare-analytics"
   ],
 
   runtimeConfig: {
@@ -19,10 +18,6 @@ export default defineNuxtConfig({
       eventDate: process.env.EVENT_DATE,
       lineupPdfUrl: process.env.LINEUP_PDF_URL,
     },
-  },
-
-  cloudflareAnalytics: {
-    token: process.env.CLOUDFLARE_ANALYTICS_TOKEN || "",
   },
 
   // Nuxt Image module configuration
@@ -36,6 +31,14 @@ export default defineNuxtConfig({
     head: {
       title: "Izegem Klinkt",
       titleTemplate: "%s - Izegem Klinkt",
+
+      script: [
+        {
+          "src": process.env.VITE_UMAMI_SCRIPT_URL,
+          "defer": true,
+          "data-website-id": process.env.VITE_UMAMI_WEBSITE_ID,
+        },
+      ],
 
       htmlAttrs: {
         lang: "nl",

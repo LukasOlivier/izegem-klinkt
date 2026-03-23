@@ -33,7 +33,6 @@ export default defineNuxtConfig({
     head: {
       title: "Izegem Klinkt",
       titleTemplate: "%s - Izegem Klinkt",
-
       script: [
         {
           "src": process.env.VITE_UMAMI_SCRIPT_URL,
@@ -41,14 +40,10 @@ export default defineNuxtConfig({
           "data-website-id": process.env.VITE_UMAMI_WEBSITE_ID,
         },
       ],
-
       htmlAttrs: {
         lang: "nl",
       },
-      meta: [
-        { charset: "utf-8" },
-        // Add favicon configuration
-        { name: "msapplication-TileColor", content: "#ffffff" },
+      link: [
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         {
           rel: "icon",
@@ -68,7 +63,10 @@ export default defineNuxtConfig({
           href: "/apple-touch-icon.png",
         },
         { rel: "manifest", href: "/site.webmanifest" },
-
+      ],
+      meta: [
+        { charset: "utf-8" },
+        { name: "msapplication-TileColor", content: "#ffffff" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
@@ -80,30 +78,25 @@ export default defineNuxtConfig({
           content:
             "Izegem Klinkt, Izegem, Muziek, Pekkersstad, Tournée, 4 mei 2025, Gratis, 14 cafés, 14 bands, 1 stad, 1 muzikale tournée, kroegentocht, tocht, kroegen, programma",
         },
-        { hid: "og-type", property: "og:type", content: "website" },
+        { property: "og:type", content: "website" },
         {
-          hid: "og-title",
           property: "og:title",
           content: "Izegem Klinkt Programma",
         },
         {
-          hid: "og-desc",
           property: "og:description",
           content:
             "Izegem Klinkt - Muzikale Tournée in de Pekkersstad. Programma 4 mei 2025. Gratis toegang. 14 deelnemende cafés. 14 bands. 1 stad. 1 muzikale tournée.",
         },
         {
-          hid: "og-image",
           property: "og:image",
           content: "https://www.izegemklinkt.be/logo.png",
         },
         {
-          hid: "og-url",
           property: "og:url",
           content: "https://www.izegemklinkt.be",
         },
         {
-          hid: "t-type",
           name: "twitter:image",
           content: "https://www.izegemklinkt.be/logo.png",
         },

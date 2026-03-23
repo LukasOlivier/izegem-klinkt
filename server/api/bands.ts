@@ -37,88 +37,93 @@ function transformYoutubeUrl(url: string): string {
 
 const SPREADSHEET_ID = "1o2a1B9ystatYWXl4QgJo5ukDlu2ibPFqf7McJuF27uU";
 
-export default defineEventHandler(async (): Promise<Record<string, Band[]>> => {
-  const config = useRuntimeConfig();
-  const API_KEY = config.googleSheetsApiKey;
-  const baseUrl = config.public.clientUrl || "http://localhost:3000";
+export default defineCachedEventHandler(
+  async (): Promise<Record<string, Band[]>> => {
+    const config = useRuntimeConfig();
+    const API_KEY = config.googleSheetsApiKey;
+    const baseUrl = config.public.clientUrl || "http://localhost:3000";
 
-  if (!API_KEY) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "GOOGLE_SHEETS_API_KEY is not configured",
-    });
-  }
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Antwoorden!A:Z?key=${API_KEY}`;
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Google Sheets API error: ${response.statusText}`);
-    }
-
-    const data = (await response.json()) as { values: (string | number)[][] };
-    const rows = data.values;
-
-    if (!rows || rows.length === 0) {
+    if (!API_KEY) {
       throw createError({
         statusCode: 500,
-        statusMessage: "No data returned from Google Sheets API",
+        statusMessage: "GOOGLE_SHEETS_API_KEY is not configured",
       });
     }
 
-    const headers = rows[0] as string[];
-    const byYear: Record<string, Band[]> = {};
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Antwoorden!A:Z?key=${API_KEY}`;
 
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      const rowData: Record<string, string> = {};
+    try {
+      const response = await fetch(url);
 
-      headers.forEach((header, index) => {
-        rowData[header] = String(row[index] || "");
-      });
-
-      if (!rowData["Jaar"] && !rowData["Naam"]) {
-        continue;
+      if (!response.ok) {
+        throw new Error(`Google Sheets API error: ${response.statusText}`);
       }
 
-      const year = rowData["Jaar"]?.trim() || "";
-      const name = rowData["Naam"]?.trim() || "";
+      const data = (await response.json()) as { values: (string | number)[][] };
+      const rows = data.values;
 
-      const lookupName = name
-        .toLowerCase()
-        .replace(/[^a-z0-9]/gi, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+      if (!rows || rows.length === 0) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: "No data returned from Google Sheets API",
+        });
+      }
 
-      const band: Band = {
-        location: rowData["Plaats"]?.trim() || "",
-        time: rowData["Tijdstip"]?.trim() || null,
-        bandPhoto: transformGoogleDriveUrl(
-          rowData["Foto"]?.trim() || "",
-          baseUrl,
-        ),
-        bandName: name,
-        website: rowData["URL Website"]?.trim() || null,
-        video: transformYoutubeUrl(
-          rowData["URL Youtube filmpje"]?.trim() || null,
-        ),
-        description: rowData["Beschrijving"]?.trim() || "",
-        lookupName,
-      };
+      const headers = rows[0] as string[];
+      const byYear: Record<string, Band[]> = {};
 
-      if (!byYear[year]) byYear[year] = [];
-      byYear[year].push(band);
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const rowData: Record<string, string> = {};
+
+        headers.forEach((header, index) => {
+          rowData[header] = String(row[index] || "");
+        });
+
+        if (!rowData["Jaar"] && !rowData["Naam"]) {
+          continue;
+        }
+
+        const year = rowData["Jaar"]?.trim() || "";
+        const name = rowData["Naam"]?.trim() || "";
+
+        const lookupName = name
+          .toLowerCase()
+          .replace(/[^a-z0-9]/gi, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        const band: Band = {
+          location: rowData["Plaats"]?.trim() || "",
+          time: rowData["Tijdstip"]?.trim() || null,
+          bandPhoto: transformGoogleDriveUrl(
+            rowData["Foto"]?.trim() || "",
+            baseUrl,
+          ),
+          bandName: name,
+          website: rowData["URL Website"]?.trim() || null,
+          video: transformYoutubeUrl(
+            rowData["URL Youtube filmpje"]?.trim() || null,
+          ),
+          description: rowData["Beschrijving"]?.trim() || "",
+          lookupName,
+        };
+
+        if (!byYear[year]) byYear[year] = [];
+        byYear[year].push(band);
+      }
+
+      return byYear;
+    } catch (error) {
+      console.error("Error fetching data from Google Sheets API:", error);
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Failed to fetch bands data",
+        cause: error,
+      });
     }
-
-    return byYear;
-  } catch (error) {
-    console.error("Error fetching data from Google Sheets API:", error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to fetch bands data",
-      cause: error,
-    });
-  }
-});
+  },
+  {
+    maxAge: 3600, // Cache for 1 hour (3600 seconds)
+  },
+);

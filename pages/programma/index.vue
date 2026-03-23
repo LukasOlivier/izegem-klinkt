@@ -137,7 +137,23 @@
 <script setup>
 const config = useRuntimeConfig();
 const { showNotAvailableAlert } = useNotAvailableAlert();
-const bands = ref({});
+
+// Fetch bands data once and cache it
+const {
+  data: bandsData,
+  pending: isLoading,
+  error: fetchError,
+} = await useFetch("/api/bands");
+
+const bands = ref(bandsData.value || {});
+const hasError = ref(!!fetchError.value);
+
+watch(bandsData, (newData) => {
+  if (newData) {
+    bands.value = newData;
+  }
+});
+
 const years = computed(() => {
   const bandYears = Object.keys(bands.value);
   const currentYear = new Date().getFullYear().toString();
@@ -150,33 +166,6 @@ const years = computed(() => {
   return bandYears.sort().reverse();
 });
 const selectedYear = ref("");
-const isLoading = ref(true);
-const hasError = ref(false);
-
-onMounted(async () => {
-  try {
-    isLoading.value = true;
-    const fetchedBands = await $fetch("/api/bands");
-
-    // Only update bands if we actually got data
-    if (fetchedBands && Object.keys(fetchedBands).length > 0) {
-      bands.value = fetchedBands;
-
-      // Set default selected year to the most recent one
-      if (years.value.length > 0) {
-        selectedYear.value = years.value[0];
-      }
-    } else {
-      console.error("No bands data returned from API");
-      hasError.value = true;
-    }
-  } catch (error) {
-    console.error("Failed to fetch bands:", error);
-    hasError.value = true;
-  } finally {
-    isLoading.value = false;
-  }
-});
 
 const onPdfClick = (event) => {
   if (!config.public.lineupPdfUrl) {
@@ -184,6 +173,16 @@ const onPdfClick = (event) => {
     showNotAvailableAlert();
   }
 };
+
+watch(
+  [years, isLoading],
+  () => {
+    if (!isLoading.value && years.value.length > 0 && !selectedYear.value) {
+      selectedYear.value = years.value[0];
+    }
+  },
+  { immediate: true },
+);
 
 useHead({
   title: "Programma",

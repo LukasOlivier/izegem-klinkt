@@ -169,7 +169,10 @@ const {
   data: bands,
   pending,
   error,
-} = await useLazyAsyncData("bands", () => $fetch("/api/bands"));
+} = await useLazyAsyncData("bands", () => $fetch("/api/bands"), {
+  watch: [route], // Re-fetch only when route changes
+  server: true,
+});
 
 const isLoading = computed(() => pending.value);
 const hasError = computed(() => !!error.value);

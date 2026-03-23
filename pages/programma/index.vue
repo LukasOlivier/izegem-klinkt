@@ -156,7 +156,7 @@ const hasError = ref(false);
 onMounted(async () => {
   try {
     isLoading.value = true;
-    const fetchedBands = await useBands();
+    const fetchedBands = await $fetch("/api/bands");
 
     // Only update bands if we actually got data
     if (fetchedBands && Object.keys(fetchedBands).length > 0) {
@@ -167,7 +167,7 @@ onMounted(async () => {
         selectedYear.value = years.value[0];
       }
     } else {
-      console.error("No bands data returned from useBands()");
+      console.error("No bands data returned from API");
       hasError.value = true;
     }
   } catch (error) {

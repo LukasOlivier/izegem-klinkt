@@ -17,7 +17,9 @@ export default defineNuxtConfig({
     public: {
       eventDate: process.env.EVENT_DATE,
       lineupPdfUrl: process.env.LINEUP_PDF_URL,
+      clientUrl: process.env.CLIENT_URL,
     },
+    googleSheetsApiKey: process.env.NUXT_PRIVATE_GOOGLE_SHEETS_API_KEY,
   },
 
   // Nuxt Image module configuration

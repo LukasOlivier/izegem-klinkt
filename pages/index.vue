@@ -5,6 +5,23 @@
     <MainHero />
     <MainPractical />
     <MainSectionDivider :border="true" />
+    <Suspense>
+      <template #default>
+        <MainBandsMap />
+      </template>
+      <template #fallback>
+        <div class="mx-auto max-w-7xl px-4">
+          <div
+            class="overflow-hidden rounded-2xl border border-gray-700/50 bg-gray-900/30 shadow-2xl backdrop-blur-sm"
+            role="status"
+            aria-label="Kaart laden"
+          >
+            <div class="h-[500px] w-full md:h-[650px] lg:h-[700px] animate-pulse bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800" />
+          </div>
+        </div>
+      </template>
+    </Suspense>
+    <MainSectionDivider :border="true" />
     <MainInfo />
     <MainSectionDivider :border="true" />
     <MainAboutUs />

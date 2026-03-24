@@ -81,6 +81,7 @@ const map = ref(null);
 const isLoading = ref(true);
 const hasError = ref(false);
 const bandsByLocation = ref({});
+const userLocationMarker = ref(null); // Add this to track user's location marker
 
 onMounted(async () => {
   // Dynamically import Leaflet on client side only
@@ -111,13 +112,21 @@ onMounted(async () => {
 
       L.DomEvent.on(button, "click", (e) => {
         L.DomEvent.preventDefault(e);
+        L.DomEvent.stopPropagation(e); // Add this to prevent event bubbling
+
         if (navigator.geolocation) {
           button.style.opacity = "0.5";
           navigator.geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-              map.value.setView([latitude, longitude], 15);
-              L.circleMarker([latitude, longitude], {
+
+              // Remove previous user location marker if it exists
+              if (userLocationMarker.value) {
+                map.value.removeLayer(userLocationMarker.value);
+              }
+
+              // Create and add new user location marker
+              userLocationMarker.value = L.circleMarker([latitude, longitude], {
                 radius: 8,
                 fillColor: "#bc2b26",
                 color: "#fff",
@@ -125,13 +134,26 @@ onMounted(async () => {
                 opacity: 1,
                 fillOpacity: 0.8,
               }).addTo(map.value);
+
+              // Pan to user's location
+              map.value.setView([latitude, longitude], 15);
               button.style.opacity = "1";
             },
-            () => {
-              alert("Kon locatie niet bepalen");
+            (error) => {
+              console.error("Geolocation error:", error);
+              alert(
+                "Kon locatie niet bepalen. Zorg ervoor dat locatietoegang is ingeschakeld.",
+              );
               button.style.opacity = "1";
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0,
             },
           );
+        } else {
+          alert("Geolocatie wordt niet ondersteund door uw browser.");
         }
       });
 

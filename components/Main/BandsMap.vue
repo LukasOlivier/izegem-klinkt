@@ -81,7 +81,10 @@ const map = ref(null);
 const isLoading = ref(true);
 const hasError = ref(false);
 const bandsByLocation = ref({});
-const userLocationMarker = ref(null); // Add this to track user's location marker
+const userLocationMarker = ref(null);
+const userAccuracyCircle = ref(null); // Add accuracy circle
+const watchId = ref(null); // Track the geolocation watch
+const isTracking = ref(false); // Track if location tracking is active
 
 onMounted(async () => {
   // Dynamically import Leaflet on client side only
@@ -101,59 +104,134 @@ onMounted(async () => {
     popupAnchor: [0, -40],
   });
 
+  // Function to update user location on map
+  const updateUserLocation = (latitude, longitude, accuracy) => {
+    // Remove previous markers if they exist
+    if (userLocationMarker.value) {
+      map.value.removeLayer(userLocationMarker.value);
+    }
+    if (userAccuracyCircle.value) {
+      map.value.removeLayer(userAccuracyCircle.value);
+    }
+
+    // Add accuracy circle
+    userAccuracyCircle.value = L.circle([latitude, longitude], {
+      radius: accuracy,
+      fillColor: "#bc2b26",
+      fillOpacity: 0.1,
+      color: "#bc2b26",
+      weight: 1,
+      opacity: 0.3,
+    }).addTo(map.value);
+
+    // Add user location marker with pulsing effect
+    userLocationMarker.value = L.circleMarker([latitude, longitude], {
+      radius: 10,
+      fillColor: "#3b82f6", // Blue color for "you are here"
+      color: "#fff",
+      weight: 3,
+      opacity: 1,
+      fillOpacity: 0.9,
+      className: "user-location-marker", // For pulsing animation
+    }).addTo(map.value);
+
+    // Add a popup to show this is the user's location
+    userLocationMarker.value.bindPopup(
+      `<div style="text-align: center; padding: 8px;">
+        <strong style="color: #3b82f6;">📍 Uw locatie</strong>
+        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+          Nauwkeurigheid: ±${Math.round(accuracy)}m
+        </div>
+      </div>`,
+      { className: "user-location-popup" },
+    );
+  };
+
   // Create custom locate control
   const LocateControl = L.Control.extend({
     onAdd() {
       const container = L.DomUtil.create("div", "leaflet-control-locate");
       const button = L.DomUtil.create("a", "", container);
       button.href = "#";
-      button.title = "Mijn locatie";
-      button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="false" role="img"><title>Mijn locatie</title><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3" fill="currentColor"></circle><path d="M21 12h-2"></path><path d="M5 12H3"></path><path d="M12 3v2"></path><path d="M12 21v-2"></path></svg>`;
+      button.title = "Volg mijn locatie";
+      button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="false" role="img"><title>Volg mijn locatie</title><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3" fill="currentColor"></circle><path d="M21 12h-2"></path><path d="M5 12H3"></path><path d="M12 3v2"></path><path d="M12 21v-2"></path></svg>`;
 
       L.DomEvent.on(button, "click", (e) => {
         L.DomEvent.preventDefault(e);
-        L.DomEvent.stopPropagation(e); // Add this to prevent event bubbling
+        L.DomEvent.stopPropagation(e);
 
-        if (navigator.geolocation) {
+        if (!navigator.geolocation) {
+          alert("Geolocatie wordt niet ondersteund door uw browser.");
+          return;
+        }
+
+        // Toggle tracking on/off
+        if (isTracking.value) {
+          // Stop tracking
+          if (watchId.value !== null) {
+            navigator.geolocation.clearWatch(watchId.value);
+            watchId.value = null;
+          }
+
+          // Remove markers
+          if (userLocationMarker.value) {
+            map.value.removeLayer(userLocationMarker.value);
+            userLocationMarker.value = null;
+          }
+          if (userAccuracyCircle.value) {
+            map.value.removeLayer(userAccuracyCircle.value);
+            userAccuracyCircle.value = null;
+          }
+
+          isTracking.value = false;
+          button.style.backgroundColor = "white";
+          button.style.color = "#bc2b26";
+          button.title = "Volg mijn locatie";
+        } else {
+          // Start tracking
           button.style.opacity = "0.5";
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
 
-              // Remove previous user location marker if it exists
-              if (userLocationMarker.value) {
-                map.value.removeLayer(userLocationMarker.value);
+          watchId.value = navigator.geolocation.watchPosition(
+            (position) => {
+              const { latitude, longitude, accuracy } = position.coords;
+
+              // Update location on map
+              updateUserLocation(latitude, longitude, accuracy);
+
+              // Only auto-center on first location or if user is far from current view
+              if (!isTracking.value) {
+                map.value.setView([latitude, longitude], 16);
               }
 
-              // Create and add new user location marker
-              userLocationMarker.value = L.circleMarker([latitude, longitude], {
-                radius: 8,
-                fillColor: "#bc2b26",
-                color: "#fff",
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8,
-              }).addTo(map.value);
-
-              // Pan to user's location
-              map.value.setView([latitude, longitude], 15);
+              isTracking.value = true;
               button.style.opacity = "1";
+              button.style.backgroundColor = "#bc2b26";
+              button.style.color = "white";
+              button.title = "Stop locatie volgen";
             },
             (error) => {
               console.error("Geolocation error:", error);
-              alert(
-                "Kon locatie niet bepalen. Zorg ervoor dat locatietoegang is ingeschakeld.",
-              );
+              let errorMessage = "Kon locatie niet bepalen.";
+
+              if (error.code === error.PERMISSION_DENIED) {
+                errorMessage =
+                  "Locatietoegang geweigerd. Schakel locatieservices in.";
+              } else if (error.code === error.POSITION_UNAVAILABLE) {
+                errorMessage = "Locatie-informatie is niet beschikbaar.";
+              } else if (error.code === error.TIMEOUT) {
+                errorMessage = "Locatieverzoek duurde te lang.";
+              }
+
+              alert(errorMessage);
               button.style.opacity = "1";
+              isTracking.value = false;
             },
             {
-              enableHighAccuracy: true,
-              timeout: 5000,
-              maximumAge: 0,
+              enableHighAccuracy: true, // Use GPS for better accuracy
+              timeout: 10000, // 10 second timeout
+              maximumAge: 0, // Don't use cached position
             },
           );
-        } else {
-          alert("Geolocatie wordt niet ondersteund door uw browser.");
         }
       });
 
@@ -257,9 +335,9 @@ onMounted(async () => {
 
         // Center map when popup opens
         marker.on("popupopen", function (e) {
-          const px = map.value.project(e.target.getLatLng()); // Get pixel position
-          px.y -= e.target.getPopup()._container.clientHeight / 2; // Offset by half popup height
-          map.value.panTo(map.value.unproject(px), { animate: true }); // Pan to adjusted position
+          const px = map.value.project(e.target.getLatLng());
+          px.y -= e.target.getPopup()._container.clientHeight / 2;
+          map.value.panTo(map.value.unproject(px), { animate: true });
         });
       }
     });
@@ -274,6 +352,11 @@ onMounted(async () => {
 
 // Cleanup on unmount
 onUnmounted(() => {
+  // Stop watching location
+  if (watchId.value !== null) {
+    navigator.geolocation.clearWatch(watchId.value);
+  }
+
   if (map.value) {
     map.value.remove();
   }
@@ -327,7 +410,8 @@ onUnmounted(() => {
   color: #bc2b26;
   transform: scale(1.1);
 }
-T :deep(a[href*="/programma"]:hover) {
+
+:deep(a[href*="/programma"]:hover) {
   background: #a02420 !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(188, 43, 38, 0.4) !important;
@@ -358,7 +442,7 @@ T :deep(a[href*="/programma"]:hover) {
   justify-content: center;
   width: 32px;
   height: 32px;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 :deep(.leaflet-control-locate a:hover) {
@@ -374,5 +458,22 @@ T :deep(a[href*="/programma"]:hover) {
 :deep(.leaflet-control-zoom a:hover) {
   background: #bc2b26;
   color: white;
+}
+
+/* Pulsing animation for user location marker */
+:deep(.user-location-marker) {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
 }
 </style>

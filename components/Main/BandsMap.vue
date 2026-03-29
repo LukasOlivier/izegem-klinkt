@@ -127,7 +127,7 @@ onMounted(async () => {
     // Add user location marker with pulsing effect
     userLocationMarker.value = L.circleMarker([latitude, longitude], {
       radius: 10,
-      fillColor: "#3b82f6", // Blue color for "you are here"
+      fillColor: "#bc2b26",
       color: "#fff",
       weight: 3,
       opacity: 1,
@@ -138,7 +138,7 @@ onMounted(async () => {
     // Add a popup to show this is the user's location
     userLocationMarker.value.bindPopup(
       `<div style="text-align: center; padding: 8px;">
-        <strong style="color: #3b82f6;">📍 Uw locatie</strong>
+        <strong style="color: #bc2b26;">Uw locatie</strong>
         <div style="font-size: 12px; color: #666; margin-top: 4px;">
           Nauwkeurigheid: ±${Math.round(accuracy)}m
         </div>
@@ -467,13 +467,13 @@ onUnmounted(() => {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    box-shadow: 0 0 0 0 rgba(188, 43, 38, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    box-shadow: 0 0 0 10px rgba(188, 43, 38, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    box-shadow: 0 0 0 0 rgba(188, 43, 38, 0);
   }
 }
 </style>

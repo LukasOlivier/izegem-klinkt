@@ -9,6 +9,7 @@
         target="_blank"
         :href="config.public.lineupPdfUrl || '#'"
         @click="onPdfClick"
+        data-umami-event="lineup_pdf_opened"
       >
         <h2 class="mb-10 text-2xl font-bold text-white">
           Bekijk hier het programmaboekje

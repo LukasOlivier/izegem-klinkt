@@ -20,7 +20,11 @@
             >
               <IconsPhone v-if="info.type === 'phone'" />
               <IconsEmail v-else-if="info.type === 'email'" />
-              <a :href="info.href">{{ info.value }}</a>
+              <a
+                :href="info.href"
+                :data-umami-event="`contact_${info.type}_link_clicked`"
+                >{{ info.value }}</a
+              >
             </li>
           </ul>
         </div>
